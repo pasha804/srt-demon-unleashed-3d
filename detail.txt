@@ -1,0 +1,1545 @@
+================================================================================
+  SRT DEMON — CINEMATIC CHALLENGER EXPERIENCE
+  COMPREHENSIVE PROJECT DETAIL DOCUMENT
+  Generated: August 2026  |  Last Updated: August 2026
+  (Updated to include FrameSequence scroll-driven cinematic section)
+================================================================================
+
+This document explains every single aspect of the "SRT Demon Unleashed" website
+project — from its purpose and visual design, to every component, animation,
+data source, technology, and line of behavior. Nothing is left out.
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+ 1. WHAT IS THIS WEBSITE?
+ 2. PROJECT PURPOSE & DISCLAIMER
+ 3. TECH STACK & DEPENDENCIES
+ 4. PROJECT FILE STRUCTURE
+ 5. DESIGN SYSTEM & VISUAL LANGUAGE
+ 6. GLOBAL LAYOUT & APP ENTRY POINT
+ 7. COMPONENT-BY-COMPONENT BREAKDOWN
+    7.01 — Preloader
+    7.02 — Cursor
+    7.03 — Atmosphere (Canvas Background)
+    7.04 — Nav (Navigation Bar)
+    7.05 — Hero Section
+    7.06 — FrameSequence (Scroll-Driven Cinematic Frame Sequence)  ← NEW
+    7.07 — Specs Section
+    7.08 — Performance Section
+    7.09 — Gallery Section
+    7.10 — Engineering Section
+    7.11 — Timeline Section
+    7.12 — Configurator Section
+    7.13 — About Section
+    7.14 — Footer
+    7.15 — SectionHeader (Shared Component)
+    7.16 — MagneticButton (Shared Component)
+ 8. DATA LAYER (data.ts)
+ 9. CUSTOM HOOKS (hooks.ts)
+10. GLOBAL CSS & ANIMATIONS
+11. ROUTING & SERVER ARCHITECTURE
+12. PERFORMANCE & ACCESSIBILITY CONSIDERATIONS
+13. BUILD TOOLING & SCRIPTS
+14. SUMMARY OF USER EXPERIENCE FLOW
+
+
+================================================================================
+1. WHAT IS THIS WEBSITE?
+================================================================================
+
+This is a single-page, cinematic, fully animated marketing/showcase website
+dedicated to the Dodge Challenger SRT Demon — one of the most powerful and
+controversial factory-built muscle cars ever produced. The site functions as
+an immersive digital experience, not a transactional site.
+
+The experience is designed to feel like a film or a high-end car brand editorial
+rather than a standard web page. Every section uses scroll-triggered animations,
+parallax effects, particle systems, canvas drawings, and motion libraries to
+create a dramatic and immersive atmosphere.
+
+The website has 10 main content sections (plus a footer):
+  - Hero
+  - Frame Sequence  ← NEW (scroll-driven cinematic 480-frame animation)
+  - Specs
+  - Performance
+  - Gallery
+  - Engineering
+  - Timeline
+  - Configurator
+  - About
+  - Footer (with a cinematic call-to-action)
+
+================================================================================
+2. PROJECT PURPOSE & DISCLAIMER
+================================================================================
+
+The footer explicitly states: "An independent cinematic tribute to the Dodge
+Challenger SRT Demon. Not affiliated with Stellantis."
+
+This means the site is a fan/tribute project — a creative portfolio-level
+demonstration, NOT an official Dodge or Stellantis product page. It is
+connected to Lovable (lovable.dev), an AI-assisted web app builder, meaning
+the project was originally scaffolded and iterated with AI tools.
+
+The AGENTS.md file instructs developers (and AI agents) to never rebase, amend,
+or force-push commits to the connected branch, because Lovable syncs git history
+and rewrites there would break the Lovable project editor.
+
+================================================================================
+3. TECH STACK & DEPENDENCIES
+================================================================================
+
+FRAMEWORK & RUNTIME
+  - React 19           : UI rendering (latest release with concurrent features)
+  - TanStack Start     : Full-stack React meta-framework (SSR + file-based routing)
+  - TanStack Router    : File-based type-safe router
+  - TanStack Query     : Async state management (QueryClient in router context)
+  - Vite 8             : Build tool and dev server (extremely fast HMR)
+  - Bun                : JavaScript runtime and package manager (bun.lock present)
+  - TypeScript 5.8     : Strictly typed throughout
+
+ANIMATION & MOTION
+  - motion (Framer Motion v12) : Primary animation library. Used for scroll-
+                                  linked transforms, entrance animations,
+                                  layout animations, AnimatePresence, springs.
+  - GSAP 3.15          : Industry-standard animation library (installed,
+                          available for use in advanced sequences)
+  - Lenis 1.3          : Smooth scroll library. Wraps requestAnimationFrame
+                          to produce buttery, physics-based page scrolling.
+
+STYLING
+  - Tailwind CSS v4    : Utility-first CSS framework. v4 uses a new CSS-native
+                          config (@theme, @utility) instead of tailwind.config.js
+  - tw-animate-css     : Extra Tailwind animation utility classes
+  - class-variance-authority (CVA) : Variant-based component styling
+  - clsx + tailwind-merge : Conditional class merging utilities
+
+UI COMPONENTS
+  - Radix UI (30+ packages) : Unstyled, accessible headless UI primitives
+                               (accordion, dialog, dropdown, select, etc.)
+  - shadcn/ui pattern   : The components/ui/ folder contains pre-built shadcn
+                           components built on top of Radix UI
+  - Lucide React        : Icon library (ArrowDown, Menu, Volume2, etc.)
+  - Embla Carousel      : Carousel engine (installed, available)
+  - Recharts            : Chart library (installed, available)
+  - Sonner              : Toast notification library
+
+FORMS & VALIDATION
+  - React Hook Form    : Performant form state management
+  - Zod                : TypeScript-first schema validation
+  - @hookform/resolvers: Bridge between RHF and Zod
+
+FONTS (loaded via CSS / Google Fonts)
+  - Barlow Condensed   : Display/headline font (tall, condensed, bold uppercase)
+  - Inter              : Body text / sans-serif
+  - JetBrains Mono     : Monospace for specs, labels, eyebrow text
+
+
+================================================================================
+4. PROJECT FILE STRUCTURE
+================================================================================
+
+srt-demon-unleashed-main/
+│
+├── public/
+│   ├── car1/                    — Frame sequence 1: 240 JPG frames
+│   │   ├── ezgif-frame-001.jpg  — First frame of car1 sequence
+│   │   ├── ezgif-frame-002.jpg
+│   │   │   ... (240 total)
+│   │   └── ezgif-frame-240.jpg  — Last frame of car1 sequence
+│   ├── car2/                    — Frame sequence 2: 240 JPG frames
+│   │   ├── ezgif-frame-001.jpg  — First frame of car2 sequence
+│   │   ├── ezgif-frame-002.jpg
+│   │   │   ... (240 total)
+│   │   └── ezgif-frame-240.jpg  — Last frame of car2 sequence
+│   ├── favicon.ico              — Browser tab icon
+│   └── robots.txt               — Search engine crawl rules
+│
+├── src/
+│   ├── assets/                  — All image assets (7 JPGs)
+│   │   ├── engine.jpg           — Supercharged HEMI V8 engine photo
+│   │   ├── footer-drive.jpg     — Night city drive-away shot (footer bg)
+│   │   ├── gallery-1.jpg        — Side profile under spotlight (Specs + Configurator)
+│   │   ├── gallery-2.jpg        — Burnout box / drag launch photo
+│   │   ├── gallery-3.jpg        — Halo projector headlight close-up
+│   │   ├── gallery-4.jpg        — Red-lit tunnel shot (About section + Gallery)
+│   │   └── hero-demon.jpg       — Front hero shot: car in fog, glowing headlights
+│   │
+│   ├── components/
+│   │   ├── demon/               — All website-specific components
+│   │   │   ├── About.tsx        — Section 09: Heritage stats & brand story
+│   │   │   ├── Atmosphere.tsx   — Full-viewport canvas particle/fog system
+│   │   │   ├── Configurator.tsx — Section 08: Interactive car builder
+│   │   │   ├── Cursor.tsx       — Custom magnetic cursor with trail ring
+│   │   │   ├── data.ts          — All static data (specs, timeline, hotspots, etc.)
+│   │   │   ├── Engineering.tsx  — Section 06: Engine hotspot interactive diagram
+│   │   │   ├── Footer.tsx       — Final CTA + site links + social icons
+│   │   │   ├── FrameSequence.tsx— Section 02: Scroll-driven 480-frame cinematic  ← NEW
+│   │   │   ├── Gallery.tsx      — Section 05: Cinematic 5-photo carousel
+│   │   │   ├── Hero.tsx         — Section 01: Full-screen landing with parallax
+│   │   │   ├── hooks.ts         — Custom React hooks (smooth scroll, Lenis ref, count-up)
+│   │   │   ├── Nav.tsx          — Fixed navigation bar with audio engine toggle
+│   │   │   ├── Performance.tsx  — Section 04: Canvas speedometer + metric grid
+│   │   │   ├── Preloader.tsx    — Full-screen loading sequence with RPM bars
+│   │   │   ├── SectionHeader.tsx— Reusable section header (index, eyebrow, title, copy)
+│   │   │   ├── Specs.tsx        — Section 03: Interactive spec cards + car hotspots
+│   │   │   └── Timeline.tsx     — Section 07: Dodge Challenger history (1969–2023)
+│   │   │
+│   │   └── ui/                  — shadcn/ui component library (40+ files)
+│   │       (accordion, button, card, dialog, input, select, slider, etc.)
+│   │
+│   ├── hooks/                   — (folder for additional hooks, currently empty/minimal)
+│   ├── lib/                     — (utility helpers folder)
+│   ├── routes/
+│   │   └── index.tsx            — The single route "/" — assembles the full page
+│   ├── router.tsx               — Creates TanStack Router with QueryClient
+│   ├── routeTree.gen.ts         — Auto-generated route tree (do not edit manually)
+│   ├── server.ts                — Server entry point for SSR
+│   ├── start.ts                 — Client entry point
+│   └── styles.css               — Global CSS: design tokens, fonts, keyframes, utilities
+│
+├── .gitignore                   — Git ignore rules
+├── .prettierignore              — Prettier format exclusions
+├── .prettierrc                  — Prettier code formatting config
+├── AGENTS.md                    — Rules for AI coding agents (Lovable integration)
+├── bun.lock                     — Bun lockfile (dependency versions locked)
+├── bunfig.toml                  — Bun runtime configuration
+├── components.json              — shadcn/ui CLI configuration
+├── eslint.config.js             — ESLint rules (react-hooks, react-refresh, prettier)
+├── package.json                 — Project manifest, scripts, dependencies
+└── README.md                    — Project readme
+
+
+================================================================================
+5. DESIGN SYSTEM & VISUAL LANGUAGE
+================================================================================
+
+The entire site uses a custom design system defined in styles.css. It is built
+on Tailwind CSS v4's new @theme and @utility APIs — no tailwind.config.js file.
+
+COLOR PALETTE (all in oklch color space for perceptual uniformity)
+  --jet         oklch(0.13 0 0)      Near-black. Page background.
+  --carbon      oklch(0.16 0 0)      Slightly lighter black. Card backgrounds.
+  --graphite    oklch(0.21 0 0)      Dark grey. Muted/secondary surfaces.
+  --steel       oklch(0.29 0 0)      Medium dark grey. Borders, inactive dots.
+  --smoke       oklch(0.88 0 0)      Light grey. Secondary text, soft labels.
+  --demon       oklch(0.53 0.222 27.3) Deep crimson red. Primary brand color.
+  --glow-red    oklch(0.63 0.235 25.5) Brighter red for glows and shadows.
+  --ember       oklch(0.7 0.19 45)   Orange-red. Used in gradient accents.
+
+  --gradient-ember: linear-gradient(120deg, --demon, --ember)
+    → The signature red-to-orange text gradient used on hero titles and the
+      footer headline.
+
+  --shadow-demon: 0 0 60px -10px glow-red at 55%
+    → The red outer glow applied to highlighted elements and buttons.
+
+TYPOGRAPHY
+  Display font  (--font-display): "Barlow Condensed" — bold, condensed, uppercase.
+    Used for: all major headings, year numbers, stat values, the logo wordmark.
+    The @utility "display" class applies: font-family, font-weight:700,
+    letter-spacing:-0.02em, line-height:0.86, text-transform:uppercase.
+
+  Body font     (--font-sans): "Inter" — clean, modern sans-serif.
+    Used for: paragraph copy, descriptions.
+
+  Mono font     (--font-mono): "JetBrains Mono" — technical monospace.
+    Used for: spec labels, eyebrow text, navigation links, price display,
+    percentage counters, RPM readouts.
+
+  The @utility "eyebrow" class: monospace, 0.6875rem, letter-spacing:0.35em,
+  uppercase, muted-foreground color. Used for small category labels above titles.
+
+CUSTOM CSS UTILITIES (@utility in Tailwind v4)
+  .display      → The display heading style described above
+  .eyebrow      → Small uppercase monospace label style
+  .glass-panel  → Frosted glass card: semi-transparent carbon bg, backdrop-blur,
+                   subtle white border, deep shadow
+  .ember-text   → Gradient text (demon → ember colors), transparent fill
+  .glow-text    → Red text-shadow glow effect (used on logo and footer headline)
+  .scanlines    → Repeating horizontal line overlay giving a CRT/film look
+  .breathe      → Subtle 9s scale+translateY animation (hero car image)
+  .idle-shake   → 0.16s micro-vibration animation (simulates engine idle)
+  .pulse-glow   → 2.4s opacity pulse on glowing dots/indicators
+  .film-grain   → ::after pseudo-element with animated noise pattern overlay
+
+SCROLLBAR STYLING
+  Custom 8px wide scrollbar (webkit). Track is --jet black. Thumb is --steel.
+  On hover, thumb turns --demon (red). Consistent with the dark theme.
+
+TEXT SELECTION
+  Selected text background: --demon (red). Selected text color: white.
+
+
+================================================================================
+6. GLOBAL LAYOUT & APP ENTRY POINT (src/routes/index.tsx)
+================================================================================
+
+The single route "/" is defined using TanStack Router's createFileRoute().
+
+SEO HEAD TAGS
+  The route defines head() metadata:
+  - title: "SRT Demon — 808 HP Cinematic Challenger Experience"
+  - description: describes the immersive experience, horsepower, configurator, etc.
+  - og:title, og:description, og:type: Open Graph tags for social sharing
+  - twitter:card: "summary_large_image" for Twitter/X cards
+
+THE INDEX COMPONENT — render order and behavior:
+  State:
+    - hydrated: boolean — becomes true after client-side hydration (guards
+                           browser-only components from SSR mismatch)
+    - ready: boolean    — becomes true after the Preloader finishes. This is
+                           what gates the smooth scroll activation.
+
+  useSmoothScroll(ready):
+    Lenis smooth scroll is only initialized AFTER the preloader completes.
+    This prevents scroll events from firing during the loading sequence.
+
+  Render tree (in order):
+    <div class="relative min-h-screen bg-jet">
+      (if hydrated):
+        <Cursor />          — Custom mouse cursor overlay (desktop only)
+        <Atmosphere />      — Fixed canvas particle system behind everything
+        <Preloader />       — Full-screen loading overlay (z-index 120)
+
+      <Nav />               — Fixed top navigation (z-index 60)
+
+      <main class="relative z-10">
+        <Hero />            — Section 01
+        <FrameSequence />   — Scroll-driven 480-frame cinematic sequence ← NEW
+        <Specs />           — Section 02
+        <Performance />     — Section 03
+        <Gallery />         — Section 04
+        <Engineering />     — Section 05
+        <Timeline />        — Section 06
+        <Configurator />    — Section 07
+        <About />           — Section 08
+      </main>
+
+      <Footer />            — Below main content
+    </div>
+
+  Z-INDEX LAYERING SYSTEM:
+    z-[5]   → Atmosphere canvas (behind everything)
+    z-[10]  → Section content (default main)
+    z-[60]  → Nav header (always on top of content)
+    z-[100] → Cursor overlay
+    z-[110] → Gallery fullscreen lightbox
+    z-[115] → FrameSequence preload overlay (above gallery lightbox, below preloader)
+    z-[120] → Preloader (topmost, covers everything during load)
+
+
+================================================================================
+7. COMPONENT-BY-COMPONENT BREAKDOWN
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+7.01 — PRELOADER  (src/components/demon/Preloader.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Covers the entire viewport while the site "boots up." Mimics the feeling of
+  an engine starting and systems initializing before the race begins.
+
+VISUAL ELEMENTS:
+  1. Background: Solid --jet black, full-screen, with film-grain texture overlay.
+
+  2. Rising red ambient glow at the bottom: a radial gradient that grows in
+     opacity as the progress value increases from 0 to 100. At 0% progress it's
+     barely visible; at 100% it's fully bright and red — like embers rising.
+
+  3. Two headlights: Two circular elements positioned in the center of the
+     screen, spread apart like a car's headlights approaching. They start dim
+     (8% opacity) and grow in size/brightness with progress. At the final flash
+     moment they scale up to 3.4x and bloom fully white.
+
+  4. "SRT DEMON" title: Animated in with letterSpacing going from 0.6em to
+     0.12em (letters appear to slam together). "DEMON" uses the ember-text
+     gradient (red-to-orange). Initial opacity: 0, animates to 1.
+
+  5. RPM bar visualizer: A row of 40 vertical bars. Each bar is:
+     - Progressively taller (left to right, 25% to 100% height)
+     - Lit (white) or unlit (dark) based on whether the bar index crosses
+       the current progress percentage
+     - The last 8 bars (the "red zone", i > 31) glow in --glow-red
+     - Each lit bar has a subtle random scaleY jitter to simulate meter bounce
+
+  6. Status text line: Shows the current loading stage name on the left and
+     the zero-padded percentage ("047%") on the right, in monospace uppercase.
+
+  7. Progress bar: A thin horizontal line at the bottom. Red fill grows from
+     left to right matching progress. Has a red box-shadow glow.
+
+LOADING STAGES (shown based on progress bracket):
+  0–20%:  "INITIALIZING IGNITION"
+  21–41%: "PRIMING FUEL SYSTEM"
+  42–62%: "SPOOLING SUPERCHARGER"
+  63–83%: "CALIBRATING TRANSBRAKE"
+  84–100%: "DEMON AWAKE"
+
+PROGRESS SIMULATION:
+  A setInterval fires every 90ms. Each tick adds a random value (1.5 to 7.5)
+  to the current progress, creating an uneven, engine-like ramp. When it
+  reaches 100, the interval clears.
+
+COMPLETION SEQUENCE:
+  1. At 100%: wait 250ms, then trigger setFlash(true)
+  2. Flash: all headlight elements instantly scale/brighten. A white full-screen
+     overlay flashes in and out (opacity 0 → 0.85 → 0 over 550ms) — simulating
+     a high-beam blast or a camera flash.
+  3. At 1250ms after 100%: setGone(true) and call onDone() callback.
+  4. onDone() sets ready=true in the Index component, which activates Lenis.
+  5. AnimatePresence exit: the preloader scales up slightly and blurs out.
+
+────────────────────────────────────────────────────────────────────────────────
+7.02 — CURSOR  (src/components/demon/Cursor.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Replaces the default OS cursor on desktop (non-touch) devices with a custom
+  magnetic, glowing cursor system that reacts to interactive elements.
+
+COMPONENTS:
+  1. Red dot: A small 6x6px red circle (--demon color) with red glow box-shadow.
+     This snaps directly to the actual mouse position every frame.
+
+  2. Ring: A larger circle with a red border (--primary/70). This LAGS behind
+     the cursor position using linear interpolation (lerp factor 0.16 per frame),
+     creating a spring-like trailing effect. The ring is 34x34px normally.
+
+ACTIVE STATE (when hovering an element with data-cursor attribute):
+  - The ring expands to 76x76px
+  - Gets a semi-transparent demon-colored background (16% opacity)
+  - Gets backdrop-filter: blur(2px) — frosted glass effect
+  - A label can appear inside the ring (see data-cursor labels below)
+
+DATA-CURSOR LABELS used across the site:
+  data-cursor="true"      → Just enlarges ring, no text label
+  data-cursor="go"        → Shows "GO" inside ring (hero CTA button)
+  data-cursor="top"       → Shows "TOP" (Nav logo, scrolls to hero)
+  data-cursor="sound"     → Shows "SOUND" (audio toggle when off)
+  data-cursor="mute"      → Shows "MUTE" (audio toggle when on)
+  data-cursor="drag"      → Shows "DRAG" (gallery slide area)
+  data-cursor="prev"      → Shows "PREV" (gallery prev button)
+  data-cursor="next"      → Shows "NEXT" (gallery next button)
+  data-cursor="zoom"      → Shows "ZOOM" (gallery fullscreen button)
+  data-cursor="explode"   → Shows "EXPLODE" (engineering engine view)
+  data-cursor="assemble"  → Shows "ASSEMBLE" (engineering engine, after explode)
+
+VISIBILITY: The cursor component is only rendered on md+ screens (hidden on
+mobile), and only becomes visible after the first pointermove event fires.
+On touch/coarse-pointer devices, the entire effect is skipped via matchMedia.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.03 — ATMOSPHERE  (src/components/demon/Atmosphere.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  A fixed, full-viewport canvas positioned behind all content (z-5), rendering
+  atmospheric particle effects and volumetric fog. Adds cinematic depth and
+  movement throughout the entire scrolling experience.
+
+PARTICLE SYSTEM — three types:
+  1. dust    (55% spawn rate): tiny floating particles (0.4–1.5px radius),
+                                very slow vertical drift, low opacity (0.28),
+                                white/grey color. Simulates lens dust.
+
+  2. ember   (33% spawn rate): medium particles (0.7–2.5px), moderate upward
+                                drift, orange-red color with a large 7x radius
+                                glow halo. Simulates rising sparks/embers.
+
+  3. spark   (12% spawn rate): fast-moving streaks, rendered as lines (not
+                                dots), orange color, high velocity, short trails.
+                                Simulates welding sparks or hot metal debris.
+
+PARTICLE BEHAVIOR:
+  - Each particle spawns at the bottom (y = height + random offset above).
+  - They rise upward with vy velocity (-0.15 to -2.3 px/frame depending on type).
+  - They drift horizontally with vx velocity and a sine-wave perturbation.
+  - Life counter: each particle has a maxLife (260–780 frames). When exceeded,
+    or when y < -60, the particle is replaced with a new spawn.
+  - Fade curve: alpha follows a sine fade-in/fade-out (sin(life/maxLife * π)).
+
+VOLUMETRIC FOG:
+  Three large radial gradients positioned across the screen, moving slowly in
+  circular paths using sine/cosine waves. The center fog bank has a slight red
+  tint (rgba(209,18,23,0.055)), while the others are grey-blue. Each has a
+  radius of 35–43% of the viewport. These are redrawn every frame with different
+  positions (shift by sin/cos of time).
+
+CURSOR LIGHT BLOOM:
+  A 320px radial gradient follows the pointer position (tracked via pointermove).
+  Color: rgba(255,59,59,0.05) → transparent. Adds a subtle red spotlight effect
+  wherever the cursor is hovering. This is drawn on top of the fog, before the
+  particles, giving a layered depth.
+
+MOVING LIGHT SHAFTS (non-canvas):
+  Two div elements with tall (180% height) vertical gradients, rotated 12°,
+  animated horizontally using the @keyframes sweep. One is white/70, the other
+  is primary red/80. They move across the background with 18s and 26s loop times,
+  staggered by 4s, creating the feeling of searchlights or cinematic lens flares.
+
+VIGNETTE + GRAIN:
+  A full-screen film-grain overlay (using the .film-grain utility) and an inset
+  box-shadow vignette (28vw spread, rgba(0,0,0,0.85)) darken the edges, keeping
+  focus on the center.
+
+PERFORMANCE CONSIDERATIONS:
+  - prefers-reduced-motion: If the user has this preference set, the particle
+    count drops to 30 instead of the normal ~170, and animations are gentler.
+  - devicePixelRatio is clamped to max 2 to avoid massive canvas buffers on
+    high-DPI displays.
+  - Canvas is set to "lighter" composite mode when drawing particles, making
+    overlapping particles add brightness (physically plausible glow behavior).
+
+CANVAS DIMENSIONS:
+  - Resizes on window resize events
+  - Width/height match viewport exactly (innerWidth, innerHeight)
+  - DPR scaling ensures crisp rendering on retina screens
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.04 — NAV  (src/components/demon/Nav.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Fixed top navigation bar. Provides site-wide navigation between all 8+
+  sections, shows active section highlighting, and hosts the engine audio toggle.
+
+NAVIGATION LINKS (8 items):
+  { id: "hero",         label: "Home" }
+  { id: "specs",        label: "Experience" }
+  { id: "performance",  label: "Performance" }
+  { id: "gallery",      label: "Gallery" }
+  { id: "engineering",  label: "Technology" }
+  { id: "timeline",     label: "Timeline" }
+  { id: "configurator", label: "Configurator" }
+  { id: "about",        label: "About" }
+
+ACTIVE SECTION TRACKING:
+  An IntersectionObserver watches all 8 section elements simultaneously with
+  rootMargin: "-45% 0px -50% 0px" — this means a section is only "active" when
+  the middle 5% of the viewport aligns with it. As the user scrolls, the active
+  label updates. The active link gets a red underline (--primary color bar) that
+  slides between links using Framer Motion's layoutId="nav-underline" — a shared
+  layout animation.
+
+SCROLL BEHAVIOR:
+  - Clicking any nav link calls scrollIntoView({ behavior: "smooth", block: "start" })
+  - On mobile, the menu closes automatically on navigation
+
+SCROLLED STATE:
+  When window.scrollY > 40px, the nav gains:
+  - Border bottom: 1px solid rgba(255,255,255,0.05)
+  - Background: rgba(--jet, 0.70) with backdrop-blur-xl (18px blur)
+  - Reduced vertical padding (py-3 instead of py-6)
+  At the very top of the page, the background is transparent.
+
+LOGO:
+  "SRT" in white display font, "DEMON" in --primary (red) with glow-text class.
+  Clicking it scrolls to hero. Has data-cursor="top" for custom cursor label.
+
+MOBILE MENU:
+  Below lg breakpoint (1024px), a hamburger/X icon button appears.
+  Clicking it opens a slide-down overlay with all navigation links in large
+  display font, with a glass-panel background (backdrop blur).
+
+ENGINE AUDIO TOGGLE (useEngineAudio hook, internal to Nav.tsx):
+  A button with Volume2 (on) or VolumeX (off) icon.
+  When turned ON, it synthesizes an idling V8 engine sound using the
+  Web Audio API — no external audio files are loaded.
+
+  HOW THE V8 ENGINE AUDIO IS SYNTHESIZED:
+    Three oscillators are created:
+      - 42 Hz sawtooth: deep low-end rumble (gain 0.5)
+      - 63 Hz sawtooth: sub-harmonic body resonance (gain 0.14)
+      - 126 Hz square:  upper harmonic (gain 0.14)
+    All three are filtered through a lowpass BiquadFilter (220 Hz cutoff, Q=6)
+    to remove harshness and simulate the air-box/exhaust resonance.
+
+    LFO modulation on each oscillator:
+      - Three LFOs (7.5 Hz, 8.5 Hz, 9.5 Hz) modulate each oscillator's frequency
+        by 3–9 Hz, creating the lopey, uneven idle rhythm of a big-block V8.
+
+    Noise bed for exhaust texture:
+      - A 2-second buffer of white noise (Math.random) is created once and looped.
+      - Passed through a bandpass BiquadFilter (140 Hz) to shape it as exhaust rasp.
+      - Mixed at gain 0.16.
+
+    Master gain:
+      - Initially 0. On enable: setTargetAtTime(0.09, ..., 0.8s) — smooth fade-in.
+      - On disable: setTargetAtTime(0, ..., 0.3s) — smooth fade-out.
+
+  The audio only initializes once. Toggling off just fades the gain to 0;
+  the oscillators keep running silently to avoid audio context teardown cost.
+
+ENTRY ANIMATION:
+  The entire header slides in from y:-80 with opacity 0 to y:0 / opacity:1
+  after a 0.4s delay on page load, using a custom cubic-bezier ease.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.05 — HERO SECTION  (src/components/demon/Hero.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  First thing the user sees after the preloader exits. Full-viewport landing
+  with the car image, animated headline, and scroll-linked parallax.
+
+SECTION ID: "hero"
+IMAGE: hero-demon.jpg (1920×1088) — Dodge Challenger SRT Demon in fog,
+       with glowing red headlights. Shows at scale-110 for parallax room.
+
+SCROLL PARALLAX (useScroll + useTransform + useSpring):
+  - scrollYProgress tracks [start start → end start] (section fully in to fully out)
+  - carY:     0 → 220px   — the car image moves down as you scroll out
+  - carScale: 1 → 1.22    — the car image zooms in slightly while scrolling
+  - textY:    0 → -160px  — the text block moves UP (floating away) as you scroll
+  - fade:     1 → 0 at 75% scrolled — everything fades out before leaving viewport
+  Springs (stiffness:80, damping:24) are applied to carY and carScale for
+  smooth, physics-based interpolation.
+
+MOUSE PARALLAX (pointer tracking):
+  pointer.x and pointer.y track the cursor position normalized to [-1, 1].
+  The car image wrapper translates: translate3d(x * -18px, y * -12px, 0)
+  with a 500ms cubic-bezier transition, so the car subtly follows the cursor,
+  creating a stereoscopic depth illusion.
+
+ANIMATIONS:
+  - The car image wrapper: .idle-shake (micro-vibration) + .breathe (slow scale)
+    CSS animations are running continuously for a "living" feel.
+  - The headlight bloom: A blurred div positioned at top:58%, left:38%, sized
+    160×256px, with --glow/30 color and 70px blur + pulse-glow animation.
+  - Two gradient overlays: a radial vignette (70% transparent center to 100% jet)
+    and a bottom gradient-to-transparent fade.
+
+HEADLINE ANIMATION:
+  Each word ("SRT", "Demon") is wrapped in an overflow:hidden container.
+  The word itself starts at y:"110%" rotate:4° and animates to y:0 rotate:0.
+  This creates a "slide up from behind a mask" reveal effect.
+  SRT has delay 0.45s, Demon has delay 0.6s. Duration 1.4s with custom ease.
+  Font size: clamp(4rem, 17vw, 15rem) — massive, responsive heading.
+
+  "Dodge Challenger" eyebrow: letterSpacing 0.8em → 0.42em over 1.4s.
+  Subheadline: opacity 0 → 1, y 24 → 0, delay 1.1s.
+  CTA buttons row: opacity 0 → 1, y 24 → 0, delay 1.3s.
+
+CONTENT:
+  - Eyebrow: "Dodge Challenger"
+  - H1: "SRT / Demon"
+  - Subheadline: "Unleash pure American muscle — 808 horsepower, factory built
+    for the drag strip."
+  - Inline stats: "808 HP" and "2.3s 0–60" in monospace beside the CTA button
+  - CTA button: "Explore The Beast" → smooth scrolls to #specs section
+
+LEFT RAIL DECORATION:
+  On md+ screens: a vertical column on the left edge showing "01" at top
+  and "09" at bottom, separated by a red gradient line. This is a cinematic
+  film-strip style decoration.
+
+SCROLL INDICATOR:
+  At the bottom center: a pulsing red-bordered circle with an ArrowDown icon,
+  animating y: 0→8→0 with opacity 0.4→1→0.4 on a 2.4s loop.
+  Below it: "Scroll to experience" eyebrow text. Both fade out with the hero.
+
+THE MAGNETIC BUTTON (exported, reused in Footer):
+  - On mousemove over the button, calculates cursor offset from button center
+    and translates the button by (offsetX * 0.25, offsetY * 0.35) — creating
+    the "magnetic pull" effect where the button follows the cursor slightly.
+  - onMouseLeave resets transform to translate(0,0).
+  - Has a sweep animation: a diagonal white sheen slides across on hover.
+  - Border: primary/60 default, primary on hover.
+  - Box-shadow: 0 0 50px -8px --glow-red on hover.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.06 — FRAME SEQUENCE  (src/components/demon/FrameSequence.tsx)  ← NEW
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  A scroll-driven, fully pinned cinematic frame sequence section that plays 480
+  pre-rendered JPG frames as a continuous animation controlled entirely by the
+  user's scroll position — like Apple's iPhone product pages or Porsche's
+  configurator scroll reveals. No video, no autoplay. Every frame advance is
+  100% under the user's scroll control.
+
+POSITION IN PAGE: Directly between <Hero /> and <Specs />.
+
+SECTION ID: "frame-sequence"
+
+FRAME DATA:
+  Total frames:  480
+  Sequence 1:    public/car1/ezgif-frame-001.jpg → ezgif-frame-240.jpg (240 frames)
+  Sequence 2:    public/car2/ezgif-frame-001.jpg → ezgif-frame-240.jpg (240 frames)
+  File format:   JPG (served from /public, accessible as /car1/... and /car2/...)
+  Naming:        Zero-padded 3 digits (001–240)
+
+SCROLL MECHANICS — THE STICKY CONTAINER TRICK:
+  The outer <section> has height = calc(100vh + 2880px).
+  The sticky inner div has height = 100vh, position = sticky, top = 0.
+  This means:
+    - When the top of the section reaches the viewport top, the inner canvas
+      "sticks" and stays fixed.
+    - The user scrolls 2880px while the canvas appears frozen in place.
+    - During those 2880px, scroll position is mapped to frame index.
+    - When the section bottom exits the viewport, the sticky releases and
+      normal page scrolling resumes into the Specs section.
+  No JS-based scroll locking. No pointer-event blocking. Lenis is unaffected.
+
+SCROLL → FRAME MAPPING:
+  scrolled = -(section.getBoundingClientRect().top)
+  progress = clamp(scrolled / 2880, 0, 1)
+  frameIndex = Math.round(progress × 479)
+
+  PX_PER_FRAME = 6 (6 pixels of scroll per frame).
+  SCROLL_HEIGHT = 480 × 6 = 2880px total pinned travel.
+  At 6px/frame the pacing closely matches Apple product page scroll feel.
+
+  Scrolling forward: frameIndex increases (animation advances).
+  Scrolling backward: frameIndex decreases (animation reverses perfectly).
+  No autoplay. Zero playback without scroll input.
+
+LENIS INTEGRATION:
+  Primary: subscribes to lenisInstance.on("scroll", handler) — the highest-
+  fidelity hook into Lenis's smooth scroll tick, fired every RAF frame.
+  Fallback: window.addEventListener("scroll", handler) — covers the period
+  before Lenis initialises (it is dynamically imported).
+  lenisInstance is exported from hooks.ts as a module-level ref that is set
+  once Lenis initialises and nulled on destroy.
+  The component does NOT create any additional scroll system.
+
+PRELOADING — ALL 480 FRAMES:
+  On mount, 480 HTMLImageElement objects are created immediately.
+  Each gets img.decoding = "async" (browser hint for off-thread decode).
+  All 480 .src values are set at once, triggering parallel network requests.
+  A counter increments on each load/error event (errors count as settled to
+  prevent hangs on a single bad frame).
+  setLoadStatus("ready") is called only when all 480 have settled.
+  Until ready, a full-screen preload overlay is shown (z-115) with a red
+  progress bar and percentage counter matching the site's Preloader aesthetic.
+  On unmount, all img.src values are cleared to abort pending requests.
+
+CANVAS RENDERING:
+  A single <canvas> element covers the sticky viewport.
+  DPR-aware: canvas.width = window.innerWidth × min(devicePixelRatio, 2).
+  On window resize, canvas dimensions update and lastDrawnRef resets to -1
+  to force an immediate redraw.
+  Draw algorithm — "cover" fit:
+    scale = max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight)
+    Centred: dx = (canvas.width - img.naturalWidth × scale) / 2
+    ctx.clearRect then ctx.drawImage — single call, no intermediate buffers.
+  GPU compositing: canvas has willChange:"transform" for compositor promotion.
+  ctx.imageSmoothingEnabled defaults to true (bilinear, crisp on all DPRs).
+
+RAF RENDER LOOP:
+  requestAnimationFrame loop runs continuously once ready.
+  Each tick: if frameRef.current !== lastDrawnRef.current → drawFrame().
+  Otherwise: no draw call (zero wasted GPU work when scroll is idle).
+  The loop uses refs exclusively — no React state in the hot path means zero
+  re-renders during playback.
+
+ENTER TRANSITION (from Hero):
+  Hero's bottom gradient fades to var(--jet).
+  FrameSequence has a top gradient overlay: var(--jet) → transparent (h-40).
+  Result: Hero exits into black, frame sequence fades up from black. No hard cut.
+  Canvas opacity transitions from 0 → 1 over 0.9s once images are ready.
+
+EXIT TRANSITION (into Specs):
+  FrameSequence has a bottom gradient overlay: var(--jet) → transparent (h-48).
+  Specs section sits on var(--jet) background (like all sections).
+  Result: last frame gently dissolves into the Specs background. Seamless.
+
+VISUAL OVERLAYS (in render order, all pointer-events:none):
+  1. Canvas                    — fullscreen, GPU-composited frame playback
+  2. Vignette (inset shadow)   — 28vw inset, rgba(0,0,0,0.82), darkens edges
+  3. Top fade gradient         — var(--jet) → transparent, h-40
+  4. Bottom fade gradient      — var(--jet) → transparent, h-48
+  5. Scanlines (.scanlines)    — 18% opacity, matches site-wide CRT texture
+  6. Ember glow (bottom)       — radial gradient, --demon 18%, adds atmosphere
+  7. ScrollHint                — "Scroll to reveal" indicator, auto-hides
+
+SCROLL HINT:
+  A pulsing vertical red gradient line + "Scroll to reveal" eyebrow text.
+  Appears with a 0.5s delay after the section becomes visible.
+  Hides on first scroll event or after 3 seconds (whichever comes first).
+  AnimatePresence handles the fade-out.
+
+STATE (React):
+  loadStatus: "loading" | "ready"   — controls overlay visibility and canvas opacity
+  loadProgress: 0–100               — drives preload progress bar
+
+REFS (no re-renders):
+  imagesRef   — HTMLImageElement[] array of all 480 loaded images
+  frameRef    — current target frame index (written by scroll handler)
+  lastDrawnRef— last frame actually drawn (compared in RAF to skip redundant draws)
+  rafRef      — requestAnimationFrame ID for cleanup
+  canvasRef   — the canvas DOM element
+  sectionRef  — the outer section element (for getBoundingClientRect)
+
+HOOKS.TS CHANGE (supporting this component):
+  lenisInstance is now exported from hooks.ts as a typed module-level variable.
+  It is set to the Lenis instance after dynamic import resolves.
+  It is nulled when Lenis is destroyed.
+  Type: { raf, destroy, on, off } — the minimum surface needed.
+  This allows FrameSequence to subscribe directly to Lenis scroll events
+  without drilling props or using context, keeping the component self-contained.
+
+────────────────────────────────────────────────────────────────────────────────
+7.07 — SPECS SECTION  (src/components/demon/Specs.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Interactive specification explorer. The user selects a spec and a glowing
+  hotspot animates to the corresponding part of the car image. A detail card
+  fades in with the full spec data.
+
+SECTION ID: "specs"
+SECTION INDEX: "02"
+IMAGE: gallery-1.jpg — side profile of the Challenger under a spotlight.
+
+LAYOUT:
+  Two-column grid: car image (left, flex-1) and spec card rail (right, 320px).
+  On mobile, they stack vertically with horizontal scrollable cards.
+
+SPECS DATA (7 items from data.ts):
+  engine        — 6.2 (L Supercharged HEMI V8)
+  horsepower    — 808 (HP @ 6300 RPM)
+  torque        — 717 (LB-FT @ 4500 RPM)
+  transmission  — 8 (Speed TorqueFlite Auto)
+  weight        — 4280 (LBS Curb)
+  acceleration  — 2.3 (Seconds, 0–60)
+  topspeed      — 203 (MPH)
+
+HOTSPOT POSITIONS (% of image dimensions):
+  engine:       32%, 52%
+  horsepower:   44%, 46%
+  torque:       66%, 68%
+  transmission: 52%, 70%
+  weight:       50%, 82%
+  acceleration: 72%, 60%
+  topspeed:     82%, 48%
+
+INTERACTIONS:
+  - Hovering OR clicking a spec card sets activeId
+  - The glowing dot and glow halo SPRING-animate to the new position
+    (stiffness:90, damping:18) — smooth but responsive spring physics
+  - The floating card fades out with blur, then the new card fades in (0.5s)
+
+ACTIVE SPEC CARD (floating overlay on image, bottom-left):
+  - Eyebrow: spec label (e.g., "Horsepower")
+  - Large display number: spec value (e.g., "808")
+  - Unit in monospace: "HP @ 6300 RPM"
+  - Detail paragraph (small grey text): expanded technical explanation
+  AnimatePresence mode="wait" ensures clean fade-out before fade-in.
+
+SPEC SELECTOR RAIL (right column):
+  Each button shows: label (left) and value number (right).
+  Active button: red border, red background tint, red left-edge strip,
+  and a demon-red glow box-shadow.
+  Inactive: dark carbon background, subtle white border.
+  All buttons animate in with staggered delay on scroll (x:30 → 0).
+
+SCANLINES OVERLAY: .scanlines class at 30% opacity on the car image.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.08 — PERFORMANCE SECTION  (src/components/demon/Performance.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Showcases the car's raw performance numbers through a live canvas speedometer
+  and a grid of animated count-up metric tiles.
+
+SECTION ID: "performance"
+SECTION INDEX: "03"
+
+THE SPEEDOMETER (Canvas element, up to 520×520px):
+  Built entirely with the Canvas 2D API. Renders when scrolled into view.
+
+  ANIMATION: When the component enters the viewport (IntersectionObserver,
+  margin -20%), an animation loop runs for 4200ms:
+  - Uses a 4th-order ease-out function: 1 - (1-t)^4
+  - Adds an elastic overshoot: sin(t*π*3) * (1-t) * 0.09
+  - The needle sweeps from 0 to 203 MPH with a realistic physics feel,
+    overshooting slightly and settling back
+
+  CANVAS DRAWING (each frame):
+    Track arc: a faint white arc from 135° to 405° (1.5π sweep), radius ~224px
+    Tick marks: 41 ticks. Every 5th is a major tick (longer, 2.5px wide).
+    Lit ticks (below current speed): white/90. Unlit ticks: white/16.
+    Ticks above index 32 (the "red zone" >160 MPH): red/95 when lit.
+    Major tick labels: 0, 20, 40, ... 200 drawn 38px inside the arc.
+    Glowing progress arc: a 5px-wide red arc with shadowBlur:26 and shadowColor
+    glow, drawn from start angle to current speed fraction.
+    Needle: a trapezoid shape (wide at center, thin at tip) drawn from -8 to
+    r-26px, pointing at current angle. White with red glow shadow.
+    Center hub: dark circle (r=16) with red stroke.
+
+  CENTER READOUT:
+    - Large display number: Math.round(mph), updates every frame
+    - "MPH" eyebrow below
+    - RPM estimate: 800 + (mph/203) * 5700 = up to 6500 RPM shown in red mono
+
+  BACKGROUND: A radial gradient red glow behind the canvas, blurred with blur-2xl.
+
+METRICS GRID (6 tiles, 2 columns):
+  Horsepower:   808 HP      (integer count-up)
+  Torque:       717 LB-FT   (integer)
+  0–60 MPH:     2.3 SEC     (1 decimal)
+  Quarter Mile: 9.65 SEC    (2 decimals)
+  Top Speed:    203 MPH     (integer)
+  Launch G:     1.8 G       (1 decimal)
+
+  Each tile uses useCountUp (see hooks section). They stagger in from
+  y:30 opacity:0 with 80ms between each.
+  Layout: left-bordered (border-l border-white/10), label eyebrow above,
+  large display number, small red suffix label.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.09 — GALLERY SECTION  (src/components/demon/Gallery.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  A cinematic 5-photo slideshow with keyboard navigation, drag/swipe support,
+  thumbnail strip, animated transitions, and a fullscreen lightbox.
+
+SECTION ID: "gallery"
+SECTION INDEX: "04"
+
+SLIDES (5 images):
+  1. gallery-1.jpg — "Silent Threat"  / "Warehouse 04 — spotlight study"
+  2. gallery-2.jpg — "Ignition"       / "Burnout box — 2350 RPM on the TransBrake"
+  3. gallery-3.jpg — "Predator Eyes"  / "Halo projector detail — rain shoot"
+  4. gallery-4.jpg — "Tunnel Run"     / "Red line tunnel — night pass"
+  5. hero-demon.jpg — "Full Frontal"  / "Fog chamber — hero portrait"
+
+SLIDE TRANSITIONS:
+  AnimatePresence mode="sync" with crossfade.
+  Each new image: initial scale:1.16 opacity:0 blur:12px →
+                  animate scale:1.04 opacity:1 blur:0 → slow Ken Burns zoom.
+  Exit: scale:1.10 opacity:0 blur:12px.
+  Duration: 1.5s with custom ease [0.16, 1, 0.3, 1].
+
+NAVIGATION METHODS:
+  1. Arrow buttons (prev/next) at bottom-right of image
+  2. Keyboard: ArrowLeft / ArrowRight keys (listener on window)
+  3. Drag/swipe: onPointerDown saves clientX, onPointerUp checks delta.
+     If delta > 60px: advance in that direction. data-cursor="drag" on the
+     main slide area changes cursor label.
+  4. Thumbnail strip: clicking any thumbnail jumps directly to that index.
+
+CAPTION OVERLAY:
+  Bottom-left of image: title (large display) and caption (small monospace).
+  AnimatePresence mode="wait" — captions cross-fade on slide change.
+  Gradient overlay: top-to-bottom (jet→transparent→jet/40) darkens edges.
+  Scanlines overlay at 20% opacity.
+
+THUMBNAIL STRIP:
+  Below the main slide: 5 thumbnails (h-16 w-28 / h-20 w-36 on md).
+  Active thumbnail: full opacity, red border, red glow box-shadow.
+  Inactive: 45% opacity, white/10 border. Hover: 80% opacity.
+
+FULLSCREEN LIGHTBOX:
+  Expand button (Expand icon) opens fullscreen mode.
+  - Fixed overlay, z-110, jet/96 background with backdrop-blur-xl
+  - Image scales from 0.92 → 1.0 opacity:0 → 1
+  - Clicking anywhere OR pressing Escape closes it
+  - X button at top-right
+  AnimatePresence handles smooth fade-in/out.
+
+KEYBOARD LISTENER: added/removed with useEffect, listens on window.
+Escape key also closes the fullscreen lightbox.
+
+────────────────────────────────────────────────────────────────────────────────
+7.10 — ENGINEERING SECTION  (src/components/demon/Engineering.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Interactive engine diagram. Hovering hotspot nodes on the engine photo reveals
+  details about each sub-system. Clicking toggles an "exploded view" that
+  separates the hotspot markers visually.
+
+SECTION ID: "engineering"
+SECTION INDEX: "05"
+IMAGE: engine.jpg — Supercharged 6.2L HEMI V8, 1536×1024px.
+
+ENGINE HOTSPOTS (5 nodes from data.ts):
+  supercharger — "2.7L Twin-Screw Supercharger"  at 52%, 22%
+  block        — "Forged Rotating Assembly"       at 34%, 62%
+  cooling      — "SRT Power Chiller"              at 72%, 48%
+  fuel         — "Dual Fuel Pumps"                at 63%, 74%
+  trans        — "TransBrake Driveline"           at 22%, 36%
+
+HOTSPOT MARKER (each):
+  - Outer ping ring: full-size rounded ring in red/70, animating ping (2.2s loop)
+  - Inner dot: 8px white circle with red glow box-shadow
+  On hover (isActive): outer ring turns solid red/100.
+
+EXPLODED VIEW:
+  Clicking the engine image toggles exploded state.
+  In exploded mode:
+  - The engine image scales to 1.22 and rotates -1.5° (1.2s spring transition)
+  - Each hotspot marker shifts away from 50%,50% center by 35% of its distance
+    (e.g. supercharger at 52%,22% moves to approx. 54.5%,12% outward)
+  This creates an exploded technical diagram feel, as if the components are
+  floating apart from the assembly.
+  data-cursor changes between "explode" and "assemble" accordingly.
+  Text overlay top-left of image: "Assembly view · click to toggle" /
+  "Exploded view · click to toggle".
+
+DETAIL PANEL (right column):
+  When no hotspot is hovered:
+    Eyebrow: "6.2L HEMI V8"
+    Title: "Five systems. One purpose."
+    Copy: "Every subsystem exists to move 4,280 pounds..."
+  When a hotspot is hovered:
+    Eyebrow: "System"
+    Title: hotspot.name
+    Copy: hotspot.copy
+  AnimatePresence mode="wait" cross-fades between states with blur.
+
+SYSTEM LIST (below detail panel):
+  All 5 systems listed as buttons. Hovering highlights the button (red bg)
+  AND activates the corresponding hotspot on the engine image.
+  Each row has a "→" arrow in red on the right side.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.11 — TIMELINE SECTION  (src/components/demon/Timeline.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Interactive history of the Dodge Challenger from 1969 to 2023. Hovering
+  or clicking a year reveals that era's story in a large animated panel.
+
+SECTION ID: "timeline"
+SECTION INDEX: "06"
+
+TIMELINE DATA (6 entries from data.ts):
+  1969 — "The Blueprint"     : Challenger nameplate born as a personal luxury coupe.
+  1970 — "First Blood"       : E-body with 426 HEMI, 425 HP.
+  2008 — "Resurrection"      : Modern Challenger SRT8 returns with retro styling.
+  2015 — "Hellcat Era"       : 707 HP supercharged — most powerful muscle car sold.
+  2018 — "Demon Born"        : 840 HP. 9.65s quarter mile. NHRA banned it. 3,300 built.
+  2023 — "Last Call"         : SRT Demon 170, 1,025 HP on E85. Final combustion Challenger.
+
+Default active entry: index 4 (2018 — Demon Born).
+
+PROGRESS LINE:
+  A full-width base line (white/10). A red animated line (--primary with glow)
+  tracks from left edge to the current active entry. Width is calculated as
+  ((active + 0.5) / 6) * 100%. Springs to the new width (stiffness:70, damping:20).
+
+YEAR SELECTOR ROW:
+  Horizontal scrollable row of 6 buttons, one per year.
+  Active year: white text with glow-text, red glowing dot (scale 1.25 + shadow).
+  Inactive: muted grey, small dark dot. On hover: dot turns smoke color.
+  Below each year is the era title in small monospace.
+  Hovering also triggers setActive (so no click required to explore).
+
+ACTIVE ENTRY DISPLAY:
+  Large ember-text display year number (left column, 180px wide on md+).
+  Era title in large display font.
+  Description copy in small muted text (max-w-2xl).
+  AnimatePresence cross-fades with blur and y-slide on each change.
+
+────────────────────────────────────────────────────────────────────────────────
+7.12 — CONFIGURATOR SECTION  (src/components/demon/Configurator.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  An interactive car configurator that lets the user customize paint color,
+  wheels, brake calipers, environment lighting, rear spoiler, and headlights.
+  All choices reflect in real-time on the car preview image using CSS filters,
+  color overlays, and animated elements.
+
+SECTION ID: "configurator"
+SECTION INDEX: "07"
+IMAGE: gallery-1.jpg (side profile) used as the configuration stage.
+
+OPTIONS & DEFAULTS:
+
+  BODY PAINT (5 options):
+    Pitch Black    #0b0b0b  tint: 0deg    (default)
+    TorRed         #c8102e  tint: 0deg
+    Frostbite      #2f6f9f  tint: 205deg
+    Sinamon Stick  #8a4b2a  tint: 25deg
+    Destroyer Grey #6b6f72  tint: 0deg
+
+    Implementation: The car image gets CSS filter with hue-rotate(tint),
+    saturate(1.3 or 0.2 for grey), brightness(0.85 for black).
+    A mix-blend-mode:color overlay div animates its backgroundColor to paint.hex
+    at 55% opacity. For pitch black, overlay opacity is 0 (no color wash needed).
+
+  WHEELS (3 options):
+    Nitto Drag Radial    18" x 11"   (default)
+    Forged Lightweight   20" x 11"
+    Carbon Fiber Aero    20" x 11.5"
+
+  BRAKE CALIPERS (3 options):
+    Demon Red   #d11217  (default)
+    Satin Black #1a1a1a
+    Ember Orange #ff6b35
+
+    Implementation: Two blurred glow divs positioned at wheel locations
+    animate their backgroundColor to the selected caliper color.
+
+  ENVIRONMENT (3 options):
+    Warehouse  — light: rgba(216,216,216,0.16)  (default, neutral white)
+    Drag Strip — light: rgba(255,107,53,0.22)   (orange-warm)
+    Red Tunnel — light: rgba(209,18,23,0.28)    (deep red)
+    The stage background div animates backgroundColor to the environment light.
+
+  REAR SPOILER (toggle, default: ON):
+    A div element styled as a spoiler bar (top:52%, right:13%) animates
+    opacity and scaleX to 0 when disabled, simulating spoiler removal.
+
+  HALO LIGHTING (toggle, default: ON):
+    A blurred white glow div at the headlight position (top:58%, left:19%)
+    animates opacity to 0 when disabled, turning off the headlight bloom.
+
+PRICE CALCULATOR:
+  Base price: $104,995
+  + Carbon Fiber Aero wheels: +$6,200
+  + Forged Lightweight wheels: +$3,400
+  + Rear Spoiler option:       +$1,895
+  + Non-black paint:           +$795
+  Total displayed as "$111,885" style format (toLocaleString()).
+  Shows in real time as options are changed.
+
+LIVE STAGE LABEL:
+  Bottom-left of image: "{paint.name} · {wheel.size}"
+  Bottom-right: "As configured" eyebrow + price display.
+
+CONTROLS PANEL: Uses glass-panel card with gap-7 between control groups.
+  Control label is eyebrow text. Children are the interactive inputs.
+  Toggle switches use Framer Motion layout animation for the switch knob.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.13 — ABOUT SECTION  (src/components/demon/About.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Brand story and heritage section. Two editorial paragraphs + animated stats
+  grid + a reveal image of the car in a red-lit tunnel.
+
+SECTION ID: "about"
+SECTION INDEX: "08"
+IMAGE: gallery-4.jpg — Challenger SRT Demon in a red-lit tunnel.
+
+BODY COPY (two paragraphs):
+  Para 1: "The Challenger SRT Demon is not a statement of speed. It is a
+  statement of intent — a street-legal drag car sold with a warranty, a
+  passenger seat you had to pay for, and a crate of parts the factory dared
+  you to install."
+
+  Para 2: "Every element was tuned for a single 1,320-foot mission: the
+  TransBrake, the Torque Reserve, the Power Chiller, the drag radials, the
+  35% stiffer launch geometry. Then Dodge built exactly 3,300 of them and
+  walked away."
+
+  Both paragraphs animate in from y:30 opacity:0 on scroll (whileInView).
+
+STATS GRID (4 stats, 2×2):
+  110+   "Years of Dodge heritage"
+  3,300  "Demons ever built"
+  1      "Car banned by the NHRA"
+  9.65s  "Certified quarter mile" (2 decimal places)
+
+  Each stat uses the useCountUp hook — counts from 0 to target when scrolled
+  into view, with a cubic ease-out. The value display is in display/ember-text
+  (gradient red) at text-5xl (md: text-6xl). Label in monospace eyebrow style.
+  Stats stagger in with 90ms delay between each one.
+
+IMAGE REVEAL:
+  Animated with clipPath: inset(0 0 100% 0) → inset(0 0 0% 0) — a wipe-up
+  reveal (the image sweeps upward into view). Duration 1.3s.
+  Aspect ratio 4/5 (portrait), with a bottom gradient fade overlay.
+  Bottom overlay text: "Serial 0001 / 3300" (red eyebrow), "Uncompromising" (display).
+
+LAYOUT: Two-column on lg+, stacked on mobile.
+  Left: text content + stats grid.
+  Right: portrait image with reveal animation.
+
+────────────────────────────────────────────────────────────────────────────────
+7.14 — FOOTER  (src/components/demon/Footer.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE:
+  Dramatic cinematic outro + site navigation + social icons + legal note.
+
+SECTIONS:
+  1. Hero area — parallax driving image with a bold headline CTA
+  2. Navigation grid — four columns of links
+  3. Copyright bar
+
+HERO AREA:
+  Image: footer-drive.jpg — Challenger driving away toward a city skyline at night.
+  Parallax: useScroll tracks [start end → end end]. imgY: -60 → +40px.
+  imgScale: 1.25 → 1.05. Creates a zoom-out parallax as you scroll to bottom.
+  Dark gradient overlay: top (jet) → middle transparent → bottom (jet).
+  Headline: "Power Beyond Limits" — animated in with letterSpacing 0.2em → -0.01em,
+            y:50 → 0, opacity fade. Uses ember-text + glow-text.
+  Subtext: "Experience American muscle" eyebrow.
+  CTA: MagneticButton "Join The Legend" → scrolls back to #hero.
+
+NAVIGATION GRID (4 columns on md+):
+  Column 1 — Brand:
+    "SRTDEMON" logo in display font, red "DEMON".
+    Disclaimer: "An independent cinematic tribute... Not affiliated with Stellantis."
+
+  Column 2 — Navigation:
+    Home / Performance / Technology / Gallery / Specs
+
+  Column 3 — Information:
+    Timeline / Configurator / About / Contact / Privacy Policy
+    (All links point to #hero as placeholder anchors)
+
+  Column 4 — Social:
+    Facebook, Instagram, YouTube, Twitter icons (from Lucide React).
+    Each: 40px circle, border white/10, hover border turns red with red glow.
+    All links point to #hero (placeholder).
+
+COPYRIGHT BAR:
+  "© {currentYear} SRT Demon Experience — All rights reserved"
+  Monospace, 10px, letter-spaced, uppercase, muted-foreground.
+
+
+────────────────────────────────────────────────────────────────────────────────
+7.15 — SECTION HEADER  (src/components/demon/SectionHeader.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE: A reusable section header used at the top of every major section.
+
+PROPS:
+  index   — Two-digit section number: "02", "03", etc.
+  eyebrow — Short category label: "Spec Experience", "Performance", etc.
+  title   — JSX heading (allows <br /> and <span> for gradient words)
+  copy    — Optional paragraph description below the title
+
+LAYOUT:
+  Row 1: [index number in red mono] — [12px red line] — [eyebrow text]
+  Row 2: H2 heading — animated with clipPath wipe-up + y:40 → 0 on scroll
+  Row 3: Copy paragraph (if provided) — y:20 → 0, delay 0.15s
+
+H2 animation: initial { opacity:0, y:40, clipPath:"inset(0 0 100% 0)" }
+              whileInView { opacity:1, y:0, clipPath:"inset(0 0 0% 0)" }
+              Duration: 1.1s, ease [0.16, 1, 0.3, 1], once:true, margin:-15%
+
+H2 font size: clamp(2.4rem, 7vw, 6rem) — responsive giant heading.
+
+────────────────────────────────────────────────────────────────────────────────
+7.16 — MAGNETIC BUTTON  (exported from Hero.tsx)
+────────────────────────────────────────────────────────────────────────────────
+
+PURPOSE: Reusable CTA button with magnetic mouse-following effect.
+Used in: Hero ("Explore The Beast") and Footer ("Join The Legend").
+
+BEHAVIOR: Described in detail in section 7.05 above.
+
+STYLE: Rounded-full (pill shape), red border, dark red background tint.
+       Inner content: text + ChevronRight icon (translates right on hover).
+       Sweep effect: diagonal white sheen slides across on hover.
+       data-cursor="go" for custom cursor label.
+
+================================================================================
+8. DATA LAYER  (src/components/demon/data.ts)
+================================================================================
+
+All hardcoded content lives in data.ts. It exports:
+
+SPECS (array of 7 Spec objects):
+  Type: { id, label, value, unit, detail }
+  Contains the 7 core performance specs shown in the Specs section.
+  Each has a detailed description string with extra technical context.
+
+TIMELINE (array of 6 objects):
+  { year, title, copy }
+  The Challenger's history from 1969 to 2023.
+
+ENGINE_HOTSPOTS (array of 5 objects):
+  { id, name, copy, x, y }
+  x and y are percentage positions on the engine image.
+  Used by Engineering section for hotspot placement and detail display.
+
+PAINTS (array of 5 objects):
+  { id, name, hex, tint }
+  hex: CSS color for the swatch circle.
+  tint: hue-rotate value (degrees) for the CSS filter on the car image.
+
+WHEELS (array of 3 objects):
+  { id, name, size }
+
+CALIPERS (array of 3 objects):
+  { id, name, hex }
+  hex: color for the glow dot in the configurator UI and the stage effect.
+
+================================================================================
+9. CUSTOM HOOKS  (src/components/demon/hooks.ts)
+================================================================================
+
+THREE HOOKS + ONE EXPORTED REF:
+
+── lenisInstance (module-level export) ──
+  Type: { raf, destroy, on, off } | null
+  Set to the live Lenis instance after its dynamic import resolves.
+  Nulled back to null when Lenis is destroyed (on component unmount).
+  Exported so that FrameSequence can subscribe to Lenis scroll events
+  directly via lenisInstance.on("scroll", handler) without prop-drilling,
+  context, or creating a second scroll system.
+  This is the minimum Lenis API surface needed — just raf, destroy, on, off.
+
+── useSmoothScroll(enabled: boolean) ──
+  Dynamically imports Lenis (code-split, loaded async).
+  Creates a Lenis instance with: duration:1.25, smoothWheel:true, lerp:0.09
+  (lerp = linear interpolation factor; 0.09 = slow, silky smooth).
+  Runs Lenis.raf() in a requestAnimationFrame loop.
+  Only initializes when enabled=true (i.e., after preloader finishes).
+  Sets lenisInstance to the created instance on init.
+  Nulls lenisInstance on cleanup.
+  Cleanup: cancels RAF, calls lenis.destroy() on unmount.
+
+── useCountUp(target, decimals, duration) ──
+  Returns: { ref (for a <span>), display (string) }
+  An IntersectionObserver watches the ref element.
+  When it first enters the viewport (threshold 0.4 = 40% visible):
+    - Starts a RAF animation loop for `duration` ms (default 1800ms)
+    - Uses cubic ease-out: 1 - (1-t)^3
+    - Counts from 0 to target, formats with .toFixed(decimals)
+  Once started, never re-triggers (started.current ref flag).
+
+── useHydrated() ──
+  Returns: boolean
+  Starts as false. Sets to true in a useEffect (runs only on client).
+  Used in Index to guard browser-only components (Cursor, Atmosphere, Preloader)
+  from running during SSR, preventing hydration mismatches.
+
+================================================================================
+10. GLOBAL CSS & ANIMATIONS  (src/styles.css)
+================================================================================
+
+KEYFRAME ANIMATIONS:
+
+  grain (0.6s, steps(2)):
+    Translates an ::after noise element in random small offsets (0% → -3%/2% →
+    2%/-3% → -2%/-2% → 0%). Creates rapid film grain texture movement.
+
+  breathe (9s, ease-in-out, infinite):
+    scale(1) translateY(0) ↔ scale(1.012) translateY(-6px)
+    Applied to hero car image: subtle living, breathing zoom effect.
+
+  idle-shake (0.16s, linear, infinite):
+    Sub-pixel translations: (0,0) → (0.6px,-0.4px) → (-0.5px,0.5px) → (0.4px,0.6px)
+    Simulates engine vibration. Applied to hero car image wrapper.
+
+  pulse-glow (2.4s, ease-in-out, infinite):
+    opacity 0.35 ↔ 1. Applied to glowing indicator dots (ping rings, hotspots).
+
+  sweep (single pass, used with custom durations):
+    translateX(-120%) skewX(-18deg) → translateX(320%) skewX(-18deg)
+    The diagonal white/red sheen across background light shafts and button hover.
+
+  rise (used in particle-related contexts):
+    translateY(0) scale(1) → translateY(-260px) scale(0.4), with opacity fade.
+    General upward floating animation.
+
+Tailwind v4 @utility declarations register .display, .eyebrow, .glass-panel,
+.ember-text, .glow-text, .scanlines, .breathe, .idle-shake, .pulse-glow
+as first-class utility classes usable directly in JSX className strings.
+
+
+================================================================================
+11. ROUTING & SERVER ARCHITECTURE
+================================================================================
+
+TANSTACK START (Full-Stack React Meta-Framework):
+  The project uses TanStack Start, which provides:
+  - File-based routing (routes/index.tsx → the "/" route)
+  - SSR support via server.ts
+  - Client-side hydration via start.ts
+  - Integration with TanStack Router + TanStack Query
+
+ROUTER (src/router.tsx):
+  Creates a TanStack Router instance with:
+  - routeTree from auto-generated routeTree.gen.ts
+  - QueryClient injected as router context
+  - scrollRestoration: true — browser scroll position is restored on back/forward
+  - defaultPreloadStaleTime: 0 — route data is always fresh on navigation
+
+ROUTE FILE (src/routes/index.tsx):
+  createFileRoute("/") defines the only route.
+  head() function returns SEO meta tags for the page.
+  The component "Index" is the full-page assembly.
+
+SERVER ENTRY (src/server.ts):
+  Handles SSR rendering. TanStack Start uses Nitro under the hood (a server
+  toolkit for SSR), which explains the "nitro" devDependency in package.json.
+
+CLIENT ENTRY (src/start.ts):
+  Mounts the React app on the client side after SSR hydration.
+
+SINGLE PAGE DESIGN:
+  There is only one route ("/"). The entire site is a single long scrollable page.
+  Navigation between "sections" uses scrollIntoView() with smooth behavior,
+  not React Router navigation. All anchor links target id attributes on elements.
+
+================================================================================
+12. PERFORMANCE & ACCESSIBILITY CONSIDERATIONS
+================================================================================
+
+PERFORMANCE:
+  - All section images use loading="lazy" (except the hero, which is eager).
+  - Images have explicit width and height attributes to prevent layout shift (CLS).
+  - The hero image is high-priority and uses scale-110 (extra pixels pre-loaded
+    for parallax movement without layout gaps).
+  - Lenis smooth scroll is delayed until after preloader, reducing initial JS work.
+  - Lenis is dynamically imported (import("lenis")) — code-split, not in main bundle.
+  - devicePixelRatio is capped at 2 on the canvas elements to limit memory use.
+  - prefers-reduced-motion is respected in Atmosphere (drops particle count to 30).
+  - The custom cursor is disabled on touch/coarse-pointer devices (matchMedia check).
+  - All animations use transform and opacity (GPU-composited properties) rather
+    than layout-triggering properties like width/height/top/left wherever possible.
+
+ACCESSIBILITY:
+  - All images have descriptive alt text.
+  - Atmosphere canvas has aria-hidden="true" (decorative, not content).
+  - Cursor overlay has aria-hidden="true".
+  - Navigation buttons have descriptive aria-label where icon-only.
+  - Gallery prev/next/expand buttons have aria-labels.
+  - Engine hotspot buttons have aria-label set to the system name.
+  - Audio toggle button has aria-label="Toggle engine audio".
+  - Keyboard navigation supported in gallery (ArrowLeft/ArrowRight/Escape).
+  - Interactive spec cards support both hover and focus events for keyboard users.
+  - Color selection swatches have aria-label with color name.
+  - Text contrast follows the dark-on-dark design (white text on near-black bg,
+    red accents on dark backgrounds — high contrast ratios).
+
+SCROLL BEHAVIOR:
+  html { scroll-behavior: auto } — native smooth scroll is disabled.
+  Lenis takes over all scroll handling for consistent cross-browser behavior.
+  Lenis uses lerp:0.09 (slow, cinematic) and duration:1.25.
+
+================================================================================
+13. BUILD TOOLING & SCRIPTS
+================================================================================
+
+PACKAGE MANAGER: Bun (bun.lock present). npm commands also work.
+
+SCRIPTS (from package.json):
+  bun run dev        → vite dev — starts development server with HMR
+  bun run build      → vite build — production build (minified, tree-shaken)
+  bun run build:dev  → vite build --mode development — debug build
+  bun run preview    → vite preview — preview production build locally
+  bun run lint       → eslint . — runs ESLint on all files
+  bun run format     → prettier --write . — formats all files with Prettier
+
+VITE (v8):
+  Primary build tool. Features used:
+  - @tanstack/router-plugin — generates routeTree.gen.ts automatically
+  - @tailwindcss/vite — Tailwind CSS v4 Vite integration
+  - @vitejs/plugin-react — React Fast Refresh + JSX transform
+  - vite-tsconfig-paths — allows @/ import alias for src/
+
+ESLINT CONFIG (eslint.config.js):
+  Uses flat config format (ESLint 9+).
+  Plugins: eslint-plugin-react-hooks, eslint-plugin-react-refresh,
+           typescript-eslint, eslint-plugin-prettier.
+  Enforces React hooks rules, refresh boundaries, TS type safety, code formatting.
+
+PRETTIER (.prettierrc):
+  Handles automatic code formatting. .prettierignore excludes build artifacts.
+
+TYPESCRIPT (tsconfig):
+  TypeScript 5.8, strict mode. Path alias @/ → src/.
+
+COMPONENTS.JSON (shadcn/ui):
+  Configures shadcn/ui CLI for adding new UI components.
+  Style: "new-york", base color: "zinc", CSS variables enabled.
+
+BUNFIG.TOML:
+  Bun-specific runtime configuration (registry settings, test config, etc.).
+
+================================================================================
+14. SUMMARY OF USER EXPERIENCE FLOW
+================================================================================
+
+When a user opens the website, here is the exact sequence of events:
+
+  1. PAGE LOAD
+     The page loads with a pure black background. Lenis smooth scroll is NOT
+     active yet. The browser renders the shell but keeps the Preloader on top.
+
+  2. PRELOADER (3–5 seconds)
+     A fake progress counter ramps up erratically, simulating a V8 engine
+     startup sequence. RPM bars animate. Stage labels cycle through ignition
+     phases. Two headlights grow brighter. At 100%, a white flash fires.
+     The preloader scales up and blurs out.
+
+  3. HERO SECTION REVEALED
+     The car image appears with idle-shake + breathe animations running.
+     "SRT" and "Demon" words slam up from behind a mask. The subheadline and
+     CTA button fade in with staggered delays. Lenis smooth scroll is now active.
+
+  4. FRAME SEQUENCE — Cinematic Scroll-Driven Animation  ← NEW
+     Immediately after the Hero section the page enters a pinned 2880px scroll
+     zone. The viewport appears frozen while the user scrolls:
+     - 240 frames of car1 play frame-by-frame as the user scrolls down.
+     - Without any flash or reset, 240 frames of car2 continue immediately after.
+     - Scrolling backward reverses the animation perfectly.
+     - All 480 frames were preloaded into memory before this section became
+       visible, so playback is always instant with zero network lag.
+     - When the 480th frame is reached, the section unpins and scrolling
+       continues normally into the Specs section.
+
+  5. SCROLLING THROUGH SECTIONS
+     Every section uses scroll-triggered animations (whileInView from Framer
+     Motion). Headers wipe in. Images reveal with clip-path. Stats count up.
+     The canvas Atmosphere renders continuously in the background.
+     The Nav tracks which section is visible and updates its active indicator.
+
+  6. SPECS — Interactive
+     Hover spec cards to move the glowing hotspot around the car diagram.
+     The detail card cross-fades with blur transition.
+
+  7. PERFORMANCE — Animated Canvas
+     The speedometer needle sweeps to 203 MPH with overshoot. RPM counts up.
+     Six metrics count up from zero as they enter the viewport.
+
+  8. GALLERY — Cinematic Slideshow
+     Drag, swipe, or press arrow keys. Ken Burns zoom on each photo.
+     Click expand for fullscreen lightbox.
+
+  9. ENGINEERING — Interactive Diagram
+     Hover or click system names to highlight engine hotspots.
+     Click the engine to enter exploded view.
+
+  10. TIMELINE — Historical Journey
+      Hover years on the progress line to travel from 1969 to 2023.
+      The red progress line springs to the selected year.
+
+  11. CONFIGURATOR — Build Your Demon
+      Change paint, wheels, calipers, environment, spoiler, lighting.
+      Watch the car image update with CSS filters and color overlays.
+      Price updates in real time.
+
+  12. ABOUT — Heritage & Statistics
+      Stats count up on scroll. Tunnel image wipes in.
+
+  13. FOOTER — Cinematic Outro
+      Parallax driving image. "Power Beyond Limits" headline slams in.
+      CTA to return to top. Navigation links. Social icons.
+
+  PERSISTENT ELEMENTS (throughout entire scroll):
+    - Custom cursor (desktop): glowing dot + lagging ring, changes on hover
+    - Atmosphere canvas: floating embers, sparks, fog, light shafts
+    - Engine audio (optional): synthesized V8 idle via Web Audio API
+    - Nav bar: transparent at top, frosted glass after 40px scroll
+
+================================================================================
+END OF DOCUMENT
+================================================================================

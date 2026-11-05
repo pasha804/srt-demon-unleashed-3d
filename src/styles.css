@@ -1,0 +1,271 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * SRT DEMON — cinematic design system.
+ * Ultra dark, industrial, high contrast. All colors oklch.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-jet: var(--jet);
+  --color-carbon: var(--carbon);
+  --color-graphite: var(--graphite);
+  --color-steel: var(--steel);
+  --color-smoke: var(--smoke);
+  --color-demon: var(--demon);
+  --color-glow: var(--glow-red);
+  --color-ember: var(--ember);
+
+  --font-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.25rem;
+
+  --jet: oklch(0.13 0 0);
+  --carbon: oklch(0.16 0 0);
+  --graphite: oklch(0.21 0 0);
+  --steel: oklch(0.29 0 0);
+  --smoke: oklch(0.88 0 0);
+  --demon: oklch(0.53 0.222 27.3);
+  --glow-red: oklch(0.63 0.235 25.5);
+  --ember: oklch(0.7 0.19 45);
+
+  --background: var(--jet);
+  --foreground: oklch(1 0 0);
+  --card: var(--carbon);
+  --card-foreground: oklch(1 0 0);
+  --popover: var(--carbon);
+  --popover-foreground: oklch(1 0 0);
+  --primary: var(--demon);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: var(--graphite);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: var(--graphite);
+  --muted-foreground: oklch(0.68 0 0);
+  --accent: var(--steel);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: var(--demon);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: var(--demon);
+
+  --gradient-ember: linear-gradient(120deg, var(--demon), var(--ember));
+  --gradient-fade: linear-gradient(180deg, transparent, var(--jet));
+  --shadow-demon: 0 0 60px -10px color-mix(in oklab, var(--glow-red) 55%, transparent);
+  --shadow-plate: 0 30px 80px -30px oklch(0 0 0 / 90%);
+}
+
+.dark {
+  --background: var(--jet);
+  --foreground: oklch(1 0 0);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--demon);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--jet);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--steel);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--demon);
+  }
+}
+
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
+  text-transform: uppercase;
+}
+
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+@utility glass-panel {
+  background: color-mix(in oklab, var(--carbon) 62%, transparent);
+  backdrop-filter: blur(18px) saturate(120%);
+  border: 1px solid color-mix(in oklab, #fff 9%, transparent);
+  box-shadow: var(--shadow-plate);
+}
+
+@utility ember-text {
+  background: var(--gradient-ember);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility glow-text {
+  text-shadow: 0 0 40px color-mix(in oklab, var(--glow-red) 60%, transparent);
+}
+
+@utility scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 3px,
+    oklch(0 0 0 / 22%) 3px 4px
+  );
+}
+
+@keyframes grain {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3%, 2%);
+  }
+  50% {
+    transform: translate(2%, -3%);
+  }
+  75% {
+    transform: translate(-2%, -2%);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.012) translateY(-6px);
+  }
+}
+
+@keyframes idle-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(0.6px, -0.4px, 0);
+  }
+  50% {
+    transform: translate3d(-0.5px, 0.5px, 0);
+  }
+  75% {
+    transform: translate3d(0.4px, 0.6px, 0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-260px) scale(0.4);
+    opacity: 0;
+  }
+}
+
+@utility breathe {
+  animation: breathe 9s ease-in-out infinite;
+}
+
+@utility idle-shake {
+  animation: idle-shake 0.16s linear infinite;
+}
+
+@utility pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+.film-grain::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: repeating-conic-gradient(#fff 0% 25%, #000 0% 50%);
+  background-size: 3px 3px;
+  animation: grain 0.6s steps(2) infinite;
+}
